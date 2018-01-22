@@ -22,3 +22,9 @@ https://youtube.com/watch?v=-sftw5k_JRs
 
 ################################
 
+# Entry removed Sun Jan 21 21:26:41 2018
+# Reason: ERROR: cIe6x_s14Is: YouTube said: Invalid parameters.
+https://youtube.com/watch?v=cIe6x_s14Is
+
+################################
+

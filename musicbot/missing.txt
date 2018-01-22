@@ -1,0 +1,5 @@
+Github owner: SexualRinocerous 
+Project: MusicBot
+Commands found on project page
+Line taken down from command 'help'
+Comment as placeholder
