@@ -1175,6 +1175,7 @@ class MusicBot(discord.Client):
                     commands.append("{}{}".format(self.config.command_prefix, command_name))
 
             helpmsg += ", ".join(commands)
+            helpmsg += "```\n"
             #Took down commands link, see missing.txt for details
             helpmsg += "You can also use `{}help x` for more info about each command.".format(self.config.command_prefix)
 
