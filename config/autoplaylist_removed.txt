@@ -28,3 +28,9 @@ https://youtube.com/watch?v=cIe6x_s14Is
 
 ################################
 
+# Entry removed Tue Jan 23 18:02:14 2018
+# Reason: ERROR: 3kOWGBDJALY: YouTube said: Invalid parameters.
+https://youtube.com/watch?v=3kOWGBDJALY
+
+################################
+
