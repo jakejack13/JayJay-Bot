@@ -1,6 +1,0 @@
-{
-  "main": "urban.js",
-  "dependencies": {
-    "urban": "^0.3.0"
-  }
-}

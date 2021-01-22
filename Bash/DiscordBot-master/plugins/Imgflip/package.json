@@ -1,6 +1,0 @@
-{
-  "main": "imgflip.js",
-  "dependencies": {
-    "imgflipper": "1.0.x"
-  }
-}

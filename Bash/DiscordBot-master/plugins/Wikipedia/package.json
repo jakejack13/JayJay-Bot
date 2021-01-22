@@ -1,6 +1,0 @@
-{
-  "main": "wikipedia.js",
-  "dependencies": {
-    "wikijs": "0.1.x"
-  }
-}
