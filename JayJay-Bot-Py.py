@@ -1,6 +1,6 @@
 import discord
 import random
-TOKEN = "NDAwMTE5NTUzMTM4NjIyNDg0.DTXBAQ.XZ_UFCOySPa7MwVT37krX3gis-E"
+TOKEN = "NDAwMTE5NTUzMTM4NjIyNDg0.WlQuXw.FdV_Na-vO1FVst0oJuKQKwNKs6c"
 client = discord.Client()
 
 @client.event
@@ -23,7 +23,7 @@ async def on_message(message):
         split = message.content.split(' ')
         msg = split[1]
         await client.change_presence(activity=discord.Game(name=msg))
-        await message.add_reaction(discord.Reaction.emoji('\U0001F44D'))
+        await message.add_reaction('\U0001F44D')
     if message.content.startswith('!punish'):
         split = message.content.split(' ')
         user = split[1]
@@ -39,6 +39,16 @@ async def on_message(message):
         await message.channel.send(msg)
         await client.logout()
         await client.close()
+    if message.content.startswith('!nerd') :
+        split = message.content.split(' ')
+        other_user = split[1]
+        first_user = message.author.mention
+        rint = random.randint(0,1)
+        if rint == 0 :
+            msg = "" + first_user + " is nerdier than " + other_user
+        else :
+            msg = "" + other_user + " is nerdier than " + first_user
+        await message.channel.send(msg)
 
 @client.event
 async def on_ready():
