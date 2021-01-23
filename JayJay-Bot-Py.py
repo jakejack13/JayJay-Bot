@@ -3,8 +3,12 @@ import random
 TOKEN = "NDAwMTE5NTUzMTM4NjIyNDg0.WlQuXw.FdV_Na-vO1FVst0oJuKQKwNKs6c"
 client = discord.Client()
 
+
+sorry_num = 0
+
 @client.event
 async def on_message(message):
+    global sorry_num
     #prevents bot from replying to itself
     if message.author == client.user:
         return
@@ -48,6 +52,10 @@ async def on_message(message):
             msg = "" + first_user + " is nerdier than " + other_user
         else :
             msg = "" + other_user + " is nerdier than " + first_user
+        await message.channel.send(msg)
+    if message.content.startswith('!sorry') :
+        sorry_num+=1
+        msg = ("Sorry, everyone. Sorry counter: " + str(sorry_num)).format(message)
         await message.channel.send(msg)
 
 @client.event
