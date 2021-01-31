@@ -5,9 +5,11 @@ client = discord.Client()
 
 
 sorry_num = 0
+send = 0
 
 @client.event
 async def on_message(message):
+    global send
     global sorry_num
     #prevents bot from replying to itself
     if message.author == client.user:
@@ -57,6 +59,28 @@ async def on_message(message):
         sorry_num+=1
         msg = ("Sorry, everyone. Sorry counter: " + str(sorry_num)).format(message)
         await message.channel.send(msg)
+
+    #KEY
+    if message.content.startswith('!uwu') :
+        msg = "UwU".format(message)
+        await message.channel.send(msg)
+    if message.content.startswith('!key') :
+        msg = "00100001 01100010 01100001 01110011 01101000 01100010 01110010 01100101 01100001 01101011 01100101 01110010".format(message)
+        await message.channel.send(msg)
+    if message.content.startswith('!bashbreaker') :
+        print("Message received")
+        msg = "Message received. UwU bomb prepped and loaded. 1/31/20 6 p.m. EST. He will return".format(message)
+        await message.channel.send(msg)
+    #if message.channel.id == 734819308823249028 :
+    #    msg = input('> ').format(message)
+    #    await message.channel.send(msg)
+
+    if message.content.startswith('!send') and send == 0:
+        send = 1
+        while True :
+            msg = input('> ').format(message)
+            await message.channel.send(msg)
+
 
 @client.event
 async def on_ready():
