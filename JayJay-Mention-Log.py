@@ -7,12 +7,14 @@ log = open("log.txt","a")
 
 @client.event
 async def on_message(message):
-    global log
-    if message.guild.me in message.mentions:
+
+    global log #file state persistance
+
+    if message.guild.me in message.mentions: #log message
         print(message.content + '\n')
         log.write(message.content + '\n')
 
-    #if message.content.startswith('!kill') :
+    #if message.content.startswith('!kill') : # stop bot and save log (not necessary on CLI)
     #    msg = '\U0001F44D'.format(message)
     #    await message.channel.send(msg)
     #    log.close()
@@ -29,5 +31,4 @@ async def on_ready():
     msg = "Ping me to send a message to JakeJack"
     await client.change_presence(activity=discord.Game(name=msg))
 
-#client.loop.create_task(my_background_task())
 client.run(TOKEN)
