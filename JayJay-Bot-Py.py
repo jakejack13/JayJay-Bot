@@ -1,6 +1,7 @@
 import discord
 import random
-TOKEN = "NDAwMTE5NTUzMTM4NjIyNDg0.WlQuXw.FdV_Na-vO1FVst0oJuKQKwNKs6c"
+f = open("token.txt","r")
+TOKEN = f.read()
 client = discord.Client()
 
 
@@ -75,27 +76,9 @@ async def on_message(message):
 #Secret command to break the bot""".format(message)
         #await message.channel.send(msg)
 
-    #KEY
-    if message.content.startswith('!uwu') :
-        msg = "UwU".format(message)
+    if "as above, so below" in message.content.lower() :
+        msg = "he shall return".format(message)
         await message.channel.send(msg)
-    if message.content.startswith('!key') :
-        msg = "00100001 01100010 01100001 01110011 01101000 01100010 01110010 01100101 01100001 01101011 01100101 01110010".format(message)
-        await message.channel.send(msg)
-    if message.content.startswith('!bashbreaker') :
-        print("Message received")
-        msg = "Message received. UwU bomb prepped and loaded. 1/31/20 6 p.m. EST. He will return".format(message)
-        await message.channel.send(msg)
-    #if message.channel.id == 734819308823249028 :
-    #    msg = input('> ').format(message)
-    #    await message.channel.send(msg)
-
-    if message.content.startswith('!send') and send == 0:
-        send = 1
-        while True :
-            msg = input('> ').format(message)
-            await message.channel.send(msg)
-
 
 @client.event
 async def on_ready():
@@ -104,6 +87,8 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    msg = "as above, so below"
+    await client.change_presence(activity=discord.Game(name=msg))
 
 #client.loop.create_task(my_background_task())
 client.run(TOKEN)
