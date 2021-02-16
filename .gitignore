@@ -9,7 +9,9 @@ dectalk/
 discord.log
 logs/
 data/
-log.txt
-token.txt
 *.class
 *.java
+!java
+*.out
+*.c
+*.txt

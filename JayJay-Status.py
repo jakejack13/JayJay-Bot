@@ -18,6 +18,6 @@ async def on_ready():
     msg = m.read()
     await client.change_presence(activity=discord.Activity(name=msg,type=discord.ActivityType.playing))
     corner = client.get_channel(756953581671940147)
-    #await corner.connect()
+    await corner.connect()
 
 client.run(TOKEN)

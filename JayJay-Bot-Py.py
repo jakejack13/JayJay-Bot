@@ -83,14 +83,23 @@ async def on_message(message):  # bulk of command handling
         
         os.system("rm -f *.java *.class")
         os.system("echo \"" + msg + "\" > " + class_name + ".java")
-        #old_stdout = sys.stdout # Memorize the default stdout stream
-        #sys.stdout = buffer = io.StringIO()
         os.system("javac " + class_name + ".java")
         stream = os.popen("java " + class_name)
         output = stream.read()
 
-        #whatWasPrinted = buffer.getvalue()
-        #sys.stdout = old_stdout
+        await message.channel.send(output)
+
+    if message.content.startswith('!c'):
+        split = message.content.split(' ')
+        msg = " ".join(split[1:])
+        clean_msg = msg.replace('`','')
+
+        os.system("rm -f *.c *.out")
+        os.system("echo \"" + msg + "\" > main.c")
+        os.system("gcc main.c")
+        stream = os.popen("./a.out")
+        output = stream.read()
+
         await message.channel.send(output)
 
     
@@ -103,6 +112,7 @@ async def on_message(message):  # bulk of command handling
 !name
 !sorry
 !python
+!java
 Secret command to break the bot""".format(message)
         await message.channel.send(msg)
 
@@ -142,8 +152,10 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "!python print('Hello, world!')"
+    msg = "Status: Online"
     await client.change_presence(activity=discord.Game(name=msg))
+    corner = client.get_channel(756953581671940147)
+    await corner.connect()
 
 client.run(TOKEN)
 
