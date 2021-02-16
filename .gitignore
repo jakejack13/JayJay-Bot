@@ -11,3 +11,5 @@ logs/
 data/
 log.txt
 token.txt
+*.class
+*.java
