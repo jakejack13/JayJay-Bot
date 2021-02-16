@@ -102,6 +102,18 @@ async def on_message(message):  # bulk of command handling
 
         await message.channel.send(output)
 
+    if message.content.startswith('!brainfuck'):
+        split = message.content.split(' ')
+        msg = " ".join(split[1:])
+        clean_msg = msg.replace('`','')
+
+        os.system("rm -f *.bf")
+        os.system("echo \"" + msg + "\" > main.bf")
+        stream = os.popen("brainfuck main.bf")
+        output = stream.read()
+
+        await message.channel.send(output)
+
     
     if message.content.startswith('!help'):  # list of commands
         msg = """CURRENT COMMANDS:
@@ -113,6 +125,8 @@ async def on_message(message):  # bulk of command handling
 !sorry
 !python
 !java
+!c
+!brainfuck
 Secret command to break the bot""".format(message)
         await message.channel.send(msg)
 
