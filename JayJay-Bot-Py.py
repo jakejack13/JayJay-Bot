@@ -1,20 +1,10 @@
 import discord
 import random
 
-import sys
-import io
-import os
-
 f = open("token.txt", "r")
 TOKEN = f.read()
 client = discord.Client()
 sorry_num = 0  # used for !sorry
-
-def search(list, elem):
-    for i in range (len(list)):
-        if list[i] == elem:
-            return i
-    return -1
 
 @client.event
 async def on_message(message):  # bulk of command handling
@@ -61,58 +51,6 @@ async def on_message(message):  # bulk of command handling
         msg = ("Sorry, everyone. Sorry counter: " +
                str(sorry_num)).format(message)
         await message.channel.send(msg)
-    
-    if message.content.startswith('!python'):
-        old_stdout = sys.stdout # Memorize the default stdout stream
-        sys.stdout = buffer = io.StringIO()
-
-        split = message.content.split(' ')
-        msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
-        exec(compile(clean_msg,"text.txt","exec"))
-
-        whatWasPrinted = buffer.getvalue()
-        sys.stdout = old_stdout
-        await message.channel.send(whatWasPrinted)
-
-    if message.content.startswith('!java'):
-        split = message.content.split(' ')
-        msg = " ".join(split[1:])
-        class_name = split[search(split,"class") + 1]
-        clean_msg = msg.replace('`','')
-        
-        os.system("rm -f *.java *.class")
-        os.system("echo \"" + msg + "\" > " + class_name + ".java")
-        os.system("javac " + class_name + ".java")
-        stream = os.popen("java " + class_name)
-        output = stream.read()
-
-        await message.channel.send(output)
-
-    if message.content.startswith('!c'):
-        split = message.content.split(' ')
-        msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
-
-        os.system("rm -f *.c *.out")
-        os.system("echo \"" + msg + "\" > main.c")
-        os.system("gcc main.c")
-        stream = os.popen("./a.out")
-        output = stream.read()
-
-        await message.channel.send(output)
-
-    if message.content.startswith('!brainfuck'):
-        split = message.content.split(' ')
-        msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
-
-        os.system("rm -f *.bf")
-        os.system("echo \"" + msg + "\" > main.bf")
-        stream = os.popen("brainfuck main.bf")
-        output = stream.read()
-
-        await message.channel.send(output)
 
     
     if message.content.startswith('!help'):  # list of commands
@@ -123,10 +61,6 @@ async def on_message(message):  # bulk of command handling
 !game
 !name
 !sorry
-!python
-!java
-!c
-!brainfuck
 Secret command to break the bot""".format(message)
         await message.channel.send(msg)
 
@@ -166,7 +100,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "Status: Online"
+    msg = "!codehelp"
     await client.change_presence(activity=discord.Game(name=msg))
     corner = client.get_channel(756953581671940147)
     await corner.connect()
