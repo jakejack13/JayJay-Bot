@@ -30,7 +30,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "Ping me to send a message to JakeJack"
+    msg = "Jake can't come to the phone right now. Ping JayJay to leave a message"
     await client.change_presence(activity=discord.Game(name=msg))
 
 client.run(TOKEN)

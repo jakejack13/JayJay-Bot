@@ -4,6 +4,8 @@ import random
 import sys
 import io
 import os
+import traceback
+import subprocess
 
 f = open("token.txt", "r")
 TOKEN = f.read()
@@ -63,17 +65,25 @@ For Brainfuck:
         await message.channel.send(msg)
 
     if message.content.startswith('!python'):
-        old_stdout = sys.stdout # Memorize the default stdout stream
-        sys.stdout = buffer = io.StringIO()
+        old_stdout = sys.stdout 
+        old_stderr = sys.stderr
+        sys.stdout = buffer_out = io.StringIO()
+        sys.stderr = buffer_err = io.StringIO()
 
         split = message.content.split(' ')
         msg = " ".join(split[1:])
         clean_msg = msg.replace('`','')
-        exec(compile(clean_msg,"text.txt","exec"))
+        try :
+            exec(compile(clean_msg,"text.txt","exec"))
+        except :
+            traceback.print_exc()
 
-        whatWasPrinted = buffer.getvalue()
+        out_value = buffer_out.getvalue()
+        err_value = buffer_err.getvalue()
+
         sys.stdout = old_stdout
-        await message.channel.send(whatWasPrinted)
+        sys.stderr = old_stderr
+        await message.channel.send(err_value + out_value)
 
     if message.content.startswith('!java'):
         split = message.content.split(' ')
@@ -84,9 +94,10 @@ For Brainfuck:
         os.system("rm -f *.java *.class")
         os.system("echo \"" + clean_msg + "\" > " + class_name + ".java")
         os.system("cat " + class_name + ".java")
-        os.system("javac " + class_name + ".java")
-        stream = os.popen("java " + class_name)
-        output = stream.read()
+        output = ''
+        output += subprocess.run(['javac', class_name + '.java'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8')
+        if output == '' :
+            output += subprocess.run(['java', class_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8')
 
         await message.channel.send(output)
 
@@ -108,9 +119,10 @@ For Brainfuck:
         msg = " ".join(split[1:])
         clean_msg = msg.replace('`','')
 
-        os.system("rm -f *.bf")
-        os.system("echo \"" + msg + "\" > main.bf")
-        stream = os.popen("brainfuck main.bf")
+        #os.system("rm -f *.bf")
+        #os.system("echo \"" + msg + "\" > main.bf")
+        #stream = os.popen("brainfuck main.bf")
+        stream = os.popen("echo \"" + clean_msg + "\" | brainfuck")
         output = stream.read()
 
         await message.channel.send(output)
