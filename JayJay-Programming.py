@@ -64,66 +64,67 @@ For Brainfuck:
         msg = 'Hello {0.author.mention}'.format(message)
         await message.channel.send(msg)
 
+
     if message.content.startswith('!python'):
-        old_stdout = sys.stdout 
-        old_stderr = sys.stderr
-        sys.stdout = buffer_out = io.StringIO()
-        sys.stderr = buffer_err = io.StringIO()
+        old_stdout = sys.stdout # saving stdout pipe
+        old_stderr = sys.stderr # saving sterr pipe
+        sys.stdout = buffer_out = io.StringIO() # replace stdout with new string io buffer
+        sys.stderr = buffer_err = io.StringIO() # replace stderr with new string io buffer
 
         split = message.content.split(' ')
         msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
+        clean_msg = msg.replace('`','') # clean python code from message for execution
         try :
-            exec(compile(clean_msg,"text.txt","exec"))
+            exec(compile(clean_msg,"text.txt","exec")) # attempt to run
         except :
-            traceback.print_exc()
+            traceback.print_exc() # print error to console if found
 
-        out_value = buffer_out.getvalue()
-        err_value = buffer_err.getvalue()
+        out_value = buffer_out.getvalue() # grab execution values from stdout
+        err_value = buffer_err.getvalue() # grab execution values from stderr
 
-        sys.stdout = old_stdout
-        sys.stderr = old_stderr
+        sys.stdout = old_stdout # hook up stdout with old pipe
+        sys.stderr = old_stderr # hook up stderr with old pipe
         await message.channel.send(err_value + out_value)
+
 
     if message.content.startswith('!java'):
         split = message.content.split(' ')
         msg = " ".join(split[1:])
         class_name = split[search(split,"class") + 1]
-        clean_msg = msg.replace('`','')
+        clean_msg = msg.replace('`','') # clean java code from message for compilation 
         
-        os.system("rm -f *.java *.class")
-        os.system("echo \"" + clean_msg + "\" > " + class_name + ".java")
-        os.system("cat " + class_name + ".java")
+        os.system("rm -f *.java *.class") # remove previosuly run java files
+        os.system("echo \"" + clean_msg + "\" > " + class_name + ".java") # place java class into java source file
         output = ''
-        output += subprocess.run(['javac', class_name + '.java'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8')
+        output += subprocess.run(['javac', class_name + '.java'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # attempt to compile class and record results
         if output == '' :
-            output += subprocess.run(['java', class_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8')
+            output += subprocess.run(['java', class_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # if compilation succeeded, attempt to run class and record results
 
         await message.channel.send(output)
+
 
     if message.content.startswith('!c'):
         split = message.content.split(' ')
         msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
+        clean_msg = msg.replace('`','') # clean c code from message for compilation
 
-        os.system("rm -f *.c *.out")
-        os.system("echo \"" + msg + "\" > main.c")
-        os.system("gcc main.c")
-        stream = os.popen("./a.out")
-        output = stream.read()
+        os.system("rm -f *.c *.out") # remove previously run c files
+        os.system("echo \"" + msg + "\" > main.c") # place c code into source file
+        output = ''
+        output += subprocess.run(['gcc', 'main.c'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # attempt to compile source code and record results
+        if output == '' :
+            output += subprocess.run(['./a.out'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # if compilation succeeded, attempt to run executable and record results
 
         await message.channel.send(output)
+
 
     if message.content.startswith('!brainfuck'):
         split = message.content.split(' ')
         msg = " ".join(split[1:])
-        clean_msg = msg.replace('`','')
+        clean_msg = msg.replace('`','') # clean bf code from message for compilation 
 
-        #os.system("rm -f *.bf")
-        #os.system("echo \"" + msg + "\" > main.bf")
-        #stream = os.popen("brainfuck main.bf")
-        stream = os.popen("echo \"" + clean_msg + "\" | brainfuck")
-        output = stream.read()
+        stream = os.popen("echo \"" + clean_msg + "\" | brainfuck") # pipe code directly into bf interpreter
+        output = stream.read() # read output
 
         await message.channel.send(output)
 
@@ -132,7 +133,6 @@ For Brainfuck:
 
 @client.event
 async def on_ready():
-    # message upon ready
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
