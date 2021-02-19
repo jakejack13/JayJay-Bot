@@ -95,12 +95,11 @@ Secret command to break the bot""".format(message)
 
 @client.event
 async def on_ready():
-    # message upon ready
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "!codehelp"
+    msg = "!help"
     await client.change_presence(activity=discord.Game(name=msg))
     corner = client.get_channel(756953581671940147)
     await corner.connect()
