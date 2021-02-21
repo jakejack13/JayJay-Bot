@@ -10,13 +10,6 @@ import subprocess
 f = open("token.txt", "r")
 TOKEN = f.read()
 client = discord.Client()
-sorry_num = 0  # used for !sorry
-
-def search(list, elem):
-    for i in range (len(list)):
-        if list[i] == elem:
-            return i
-    return -1
 
 @client.event
 async def on_message(message):  # bulk of command handling
