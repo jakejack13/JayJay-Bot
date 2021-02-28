@@ -1,6 +1,5 @@
 import discord
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from math import floor
 
 f = open("token.txt", "r")
