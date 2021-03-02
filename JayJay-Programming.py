@@ -5,16 +5,26 @@ import io
 import os
 import traceback
 import subprocess
+import signal
 
 f = open("token.txt", "r")
 TOKEN = f.read()
 client = discord.Client()
+
+
+class TimeOutException(Exception):
+   pass
+
+def alarm_handler(signum, frame):
+    print("ALARM signal received")
+    raise TimeOutException()
 
 def search(list, elem):
     for i in range (len(list)):
         if list[i] == elem:
             return i
     return -1
+
 
 @client.event
 async def on_message(message):  # bulk of command handling
@@ -35,7 +45,6 @@ async def on_message(message):  # bulk of command handling
 
     if message.content.startswith('!codehelp') :
         msg = """For all languages:
-- NO FOREVER LOOPS OR INPUT FUNCTIONS! async does not respond nicely to those and will time out the bot
 - NO GRAPHICS OF ANY KIND! I am running this via the command line (WSL), which does not have graphics. For some reason, it breaks the bot instead of erroring out. Go figure
 - Put a space after the command (!python, !java, etc.), even if you have a new line. You will break my parsing otherwise
 - Coding blocks are allowed and even encouraged as it helps with spacing and indents
@@ -63,8 +72,17 @@ For Brainfuck:
         await message.channel.send(msg)
 
 
-    if message.content.startswith('!python'):
+    elif message.content.startswith('!python'):
         async with message.channel.typing() :
+            if 'import sys' in message.content :
+                msg = "Error: sys support is not offered".format(message)
+                await message.channel.send(msg)
+                return
+            elif 'import os' in message.content :
+                msg = "Error: os support is not offered".format(message)
+                await message.channel.send(msg)
+                return
+            
             old_stdout = sys.stdout # saving stdout pipe
             old_stderr = sys.stderr # saving sterr pipe
             sys.stdout = buffer_out = io.StringIO() # replace stdout with new string io buffer
@@ -78,10 +96,17 @@ For Brainfuck:
             
             msg = " ".join(split[1:])
             clean_msg = msg.replace('`','') # clean python code from message for execution
+            signal.signal(signal.SIGALRM, alarm_handler)
+            signal.alarm(3)
             try :
                 exec(compile(clean_msg,"text.txt","exec")) # attempt to run
+            except TimeOutException :
+                msg = "Error: Bot timed out after 3 seconds".format(message)
+                await message.channel.send(msg)
+                return
             except :
                 traceback.print_exc() # print error to console if found
+            signal.alarm(0)
 
             out_value = buffer_out.getvalue() # grab execution values from stdout
             err_value = buffer_err.getvalue() # grab execution values from stderr
@@ -92,8 +117,13 @@ For Brainfuck:
         await message.channel.send(err_value + out_value)
 
 
-    if message.content.startswith('!java'):
+    elif message.content.startswith('!java'):
         async with message.channel.typing() :
+            if 'Scanner' in message.content :
+                msg = "Error: Input support is not offered".format(message)
+                await message.channel.send(msg)
+                return
+
             split = message.content.split(' ')
             if (len(split) < 2) :
                 msg = "Usage: !java <code to run>".format(message)
@@ -102,6 +132,11 @@ For Brainfuck:
             
             msg = " ".join(split[1:])
             class_name = split[search(split,"class") + 1]
+            if class_name == '!java' :
+                msg = "Error: Class name not specified".format(message)
+                await message.channel.send(msg)
+                return
+            
             clean_msg = msg.replace('`','') # clean java code from message for compilation 
             
             os.system("rm -f *.java *.class") # remove previosuly run java files
@@ -110,11 +145,11 @@ For Brainfuck:
             output += subprocess.run(['javac', class_name + '.java'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # attempt to compile class and record results
             if output == '' :
                 output += subprocess.run(['java', class_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8') # if compilation succeeded, attempt to run class and record results
-
+                
         await message.channel.send(output)
 
 
-    if message.content.startswith('!c'):
+    elif message.content.startswith('!c'):
         async with message.channel.typing() :
             split = message.content.split(' ')
             if (len(split) < 2) :
@@ -135,7 +170,7 @@ For Brainfuck:
         await message.channel.send(output)
 
 
-    if message.content.startswith('!brainfuck'):
+    elif message.content.startswith('!brainfuck'):
         async with message.channel.typing() :
             split = message.content.split(' ')
             if (len(split) < 2) :
