@@ -71,6 +71,11 @@ For Brainfuck:
             sys.stderr = buffer_err = io.StringIO() # replace stderr with new string io buffer
 
             split = message.content.split(' ')
+            if (len(split) < 2) :
+                msg = "Usage: !python <code to run>".format(message)
+                await message.channel.send(msg)
+                return
+            
             msg = " ".join(split[1:])
             clean_msg = msg.replace('`','') # clean python code from message for execution
             try :
@@ -90,6 +95,11 @@ For Brainfuck:
     if message.content.startswith('!java'):
         async with message.channel.typing() :
             split = message.content.split(' ')
+            if (len(split) < 2) :
+                msg = "Usage: !java <code to run>".format(message)
+                await message.channel.send(msg)
+                return
+            
             msg = " ".join(split[1:])
             class_name = split[search(split,"class") + 1]
             clean_msg = msg.replace('`','') # clean java code from message for compilation 
@@ -107,6 +117,11 @@ For Brainfuck:
     if message.content.startswith('!c'):
         async with message.channel.typing() :
             split = message.content.split(' ')
+            if (len(split) < 2) :
+                msg = "Usage: !c <code to run>".format(message)
+                await message.channel.send(msg)
+                return
+            
             msg = " ".join(split[1:])
             clean_msg = msg.replace('`','') # clean c code from message for compilation
 
@@ -123,6 +138,11 @@ For Brainfuck:
     if message.content.startswith('!brainfuck'):
         async with message.channel.typing() :
             split = message.content.split(' ')
+            if (len(split) < 2) :
+                msg = "Usage: !brainfuck <code to run>".format(message)
+                await message.channel.send(msg)
+                return
+            
             msg = " ".join(split[1:])
             clean_msg = msg.replace('`','') # clean bf code from message for compilation 
 
@@ -131,8 +151,6 @@ For Brainfuck:
 
         await message.channel.send(output)
 
-    
-    
 
 @client.event
 async def on_ready():
@@ -140,7 +158,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "https://github.com/jakejack13/JayJay-Bot"
+    msg = "!help"
     await client.change_presence(activity=discord.Game(name=msg))
 
 client.run(TOKEN)

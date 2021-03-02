@@ -16,3 +16,4 @@ data/
 *.c
 *.txt
 *.bf
+!java
