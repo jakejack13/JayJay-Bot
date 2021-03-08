@@ -52,6 +52,9 @@ async def on_message(message):  # bulk of command handling
                str(sorry_num)).format(message)
         await message.channel.send(msg)
 
+    if message.content.startswith('!warren'):
+        msg = "Happy birthday to the Apprentice, the Thinker, the Creator, and my friend".format(message)
+        await message.channel.send(msg)
     
     if message.content.startswith('!help'):  # list of commands
         msg = """CURRENT COMMANDS:
@@ -99,7 +102,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "!help"
+    msg = "!warren"
     await client.change_presence(activity=discord.Game(name=msg))
     corner = client.get_channel(756953581671940147)
     await corner.connect()
