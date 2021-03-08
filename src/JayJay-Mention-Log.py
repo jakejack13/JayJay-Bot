@@ -1,9 +1,13 @@
 import discord
-f = open("token.txt", "r")
+import os
+
+script_dir = os.path.dirname(__file__)
+token_path = "../lib/token.txt"
+f = open(os.path.join(script_dir,token_path), "r")
 TOKEN = f.read()
 client = discord.Client()
-
-log = open("log.txt", "a")
+log_path = "../lib/log.txt"
+f = open(os.path.join(script_dir,log_path), "r")
 
 
 @client.event

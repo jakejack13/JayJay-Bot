@@ -1,9 +1,13 @@
 import discord
+import os
 
-f = open("token.txt", "r")
+script_dir = os.path.dirname(__file__)
+token_path = "../lib/token.txt"
+f = open(os.path.join(script_dir,token_path), "r")
 TOKEN = f.read()
 client = discord.Client()
-m = open("message.txt","r")
+message_path = "../lib/message.txt"
+m = open(os.path.join(script_dir,message_path),"r")
 
 @client.event
 async def on_ready():

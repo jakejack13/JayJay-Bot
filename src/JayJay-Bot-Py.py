@@ -1,7 +1,10 @@
 import discord
 import random
+import os
 
-f = open("token.txt", "r")
+script_dir = os.path.dirname(__file__)
+token_path = "../lib/token.txt"
+f = open(os.path.join(script_dir,token_path), "r")
 TOKEN = f.read()
 client = discord.Client()
 sorry_num = 0  # used for !sorry
