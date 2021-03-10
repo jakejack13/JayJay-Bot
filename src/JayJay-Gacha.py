@@ -36,111 +36,135 @@ async def create_gachas() :
             await asyncio.sleep(60)
 
 async def check_user(user) :
-    name = user.name + "#" + user.discriminator
-    user_item = controller.find_item(name)
+    if user.nick == None :
+        nick = user.name
+    else :
+        nick = user.nick
+    name = nick + " (" + user.name + "#" + user.discriminator + ")"
+    id = str(user.id)
+    user_item = controller.find_item_by_id(id)
     if user_item == None :
-        controller.add_new_item(name,str(user.id),1)
+        controller.add_new_item(name,id,1)
     else :
+        user_item.name = name
         user_item.rarity += 1
-    user_player = controller.find_player(name)
+    user_player = controller.find_player_by_id(id)
     if user_player == None :
-        controller.add_new_player(name,100)
+        controller.add_new_player(name,id,100)
     else :
+        user_player.name = name
         top_player = controller.top_players(2)[0]
         top_item = controller.top_items(2)[0]
-        controller.change_money_player(name,top_player.get_net_worth() / top_item.rarity)
+        controller.change_money_player(str(user.id),top_player.get_net_worth() / top_item.rarity)
 
 @client.event
 async def on_message(message): 
     if message.author == client.user:
         return
+    
+    await check_user(message.author)
 
     if message.content.startswith("!help") :
-        msg = """COMMANDS:
-        !inventory
-        !info
-        !banners
-        !top
-        !pull
+        msg = """{0.author.mention} COMMANDS:
+        !pull / !p / !roll / !r
+        !inventory / !inv
+        !banners / !b
+        !top / !t
+        !search / !s
         """.format(message)
         await message.channel.send(msg)
 
-    if message.content.startswith("!pull") :
+    if message.content.startswith("!pull") or message.content.startswith("!p") or message.content.startswith("!roll") or message.content.startswith("!r"):
+        msg = "{0.author.mention} "
         split = message.content.split(' ')
         if len(split) < 2 :
-            msg = "Usage: !pull <name of banner>"
+            msg += "Usage: !pull <name of banner>"
         else :
             try :
-                item = controller.pull(message.author.name + "#" + message.author.discriminator,split[1])
+                item = controller.pull(str(message.author.id),split[1])
                 if item == None :
-                    msg = "You do not have enough money to pull from this banner"
+                    msg += "You do not have enough money to pull from this banner"
                 else :
-                    msg = "You pulled:\n" + str(item)
+                    msg += "You pulled:\n" + str(item)
             except gachapy.controller.PullError as e:
-                msg = str(e)
-        
+                msg += str(e)
+        msg = msg.format(message)
         await message.channel.send(msg)
 
-    if message.content.startswith("!info") :
+    if message.content.startswith("!search") or message.content.startswith("!s") :
+        msg = "{0.author.mention} "
         split = message.content.split(' ')
         if len(split) < 3 :
-            msg = "Usage: !info <item/banner/player> <name>"
+            msg += "Usage: !search <item/banner/player> <name>"
         elif split[1] == "item" :
             item = controller.find_item(" ".join(split[2:]))
             if item == None :
-                msg = "Item not found".format(message)
+                msg += "Item not found"
             else :
-                msg = str(item).format(message)
+                msg += str(item)
         elif split[1] == "banner" :
             banner = controller.find_banner(" ".join(split[2:]))
             if banner == None :
-                msg = "Banner not found".format(message)
+                msg += "Banner not found"
             else :
-                msg = str(banner).format(message)
+                msg += str(banner)
         elif split[1] == "player" :
             player = controller.find_player(" ".join(split[2:]))
             if player == None :
-                msg = "Item not found".format(message)
+                msg += "Item not found"
             else :
-                msg = str(player).format(message)
+                msg += str(player)
         else :
-            msg = "Usage: !info <item/banner/player> <name>"
+            msg += "Usage: !search <item/banner/player> <name>"
+        
+        msg = msg.format(message)
         await message.channel.send(msg)
         
-    if message.content.startswith("!banners") :
-        msg = ""
+    if message.content.startswith("!banners") or message.content.startswith("!b"):
+        msg = "{0.author.mention} "
         for banner in controller.banners :
             msg += str(banner) + "\n"
             msg += "\n"
+        
         msg = msg.format(message)
         await message.channel.send(msg)
     
-    if message.content.startswith("!top") :
+    if message.content.startswith("!top") or message.content.startswith("!t"):
+        msg = "{0.author.mention} "
         split = message.content.split(' ')
         if len(split) < 2 :
-            msg = "Usage: !top <item/player>"
+            msg += "Usage: !top <item/player>"
         elif split[1] == "item" :
+            msg += "Top 10 Rarest Items:\n"
             top_items = controller.top_items(10)
-            msg = ""
             for item in top_items :
                 msg += str(item) + "\n"
-            msg = msg.format(message)
         elif split[1] == "player" :
+            msg += "Top 10 Most Valuable Players:\n"
             top_players = controller.top_players(10)
-            msg = ""
             for player in top_players :
                 msg += gachapy.objects.player_str_net_worth(player) + "\n"
-            msg = msg.format(message)
         else :
-            msg = "Usage: !top <item/player>"
+            msg += "Usage: !top <item/player>"
+        
+        msg = msg.format(message)
         await message.channel.send(msg)
 
-    if message.content.startswith("!inventory") or message.content.startswith("!inv"):
-        player = controller.find_player(message.author.name + "#" + message.author.discriminator)
-        msg = str(player)
+    if message.content.startswith("!inventory") or message.content.startswith("!inv") :
+        player = controller.find_player_by_id(str(message.author.id))
+        msg = "{0.author.mention} "
+        msg += str(player)
+        msg = msg.format(message)
         await message.channel.send(msg)
-    
-    await check_user(message.author)
+
+    if message.content.startswith("!rank") or message.content.startswith("!r") :
+        top_players = controller.top_players(len(controller.players))
+        player = controller.find_player_by_id(str(message.author.id))
+        place = top_players.index(player) + 1
+        msg = "{0.author.mention} "
+        msg += "Rank: " + str(place)
+        msg = msg.format(message)
+        await message.channel.send(msg)
 
 
 @client.event
