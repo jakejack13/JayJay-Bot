@@ -25,7 +25,15 @@ async def create_gachas() :
         controller.remove_all_banners()
         controller.create_random_banner("A",5)
         controller.create_random_banner("B",5)
-        await asyncio.sleep(600)
+        counter = 10
+        while counter > 0 :
+            counter -= 1
+            msg = str(counter) + " mins until next banner refresh"
+            try :
+                await client.change_presence(activity=discord.Game(name=msg))
+            except :
+                msg = ""
+            await asyncio.sleep(60)
 
 async def check_user(user) :
     name = user.name + "#" + user.discriminator
@@ -38,7 +46,9 @@ async def check_user(user) :
     if user_player == None :
         controller.add_new_player(name,100)
     else :
-        controller.change_money_player(name,1)
+        top_player = controller.top_players(2)[0]
+        top_item = controller.top_items(2)[0]
+        controller.change_money_player(name,top_player.get_net_worth() / top_item.rarity)
 
 @client.event
 async def on_message(message): 
@@ -125,7 +135,7 @@ async def on_message(message):
             msg = "Usage: !top <item/player>"
         await message.channel.send(msg)
 
-    if message.content.startswith("!inventory") :
+    if message.content.startswith("!inventory") or message.content.startswith("!inv"):
         player = controller.find_player(message.author.name + "#" + message.author.discriminator)
         msg = str(player)
         await message.channel.send(msg)
@@ -139,8 +149,6 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    msg = "!help"
-    await client.change_presence(activity=discord.Game(name=msg))
 
 client.loop.create_task(save())
 client.loop.create_task(create_gachas())
