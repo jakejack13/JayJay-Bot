@@ -17,3 +17,6 @@ data/
 *.txt
 *.bf
 !java
+
+lib/
+*.json
