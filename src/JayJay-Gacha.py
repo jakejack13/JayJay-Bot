@@ -245,6 +245,19 @@ async def on_message(message):
         msg += str(player)
         msg = msg.format(message)
         await message.channel.send(msg)
+    
+    if message.content.startswith("!have") :
+        msg = "{0.author.mention} "
+        split = message.content.split(' ')
+        if len(split) < 2 :
+            msg += "Usage: !have <item id>"
+        else :
+            player = controller.find_player_by_id(str(message.author.id))
+            item = controller.find_item_by_id(split[1])
+            count = player.items.count(item)
+            msg += "You have " + str(count) + " of " + str(item)
+        msg = msg.format(message)
+        await message.channel.send(msg)
 
     if message.content.startswith("!rank") :
         top_players = controller.top_players(len(controller.players))
