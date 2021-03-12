@@ -1,6 +1,8 @@
 import asyncio
 import discord
 import os
+import random
+import math
 import gachapy.objects, gachapy.controller, gachapy.loader
 
 
@@ -23,8 +25,12 @@ async def save() :
 async def create_gachas() :
     while True :
         controller.remove_all_banners()
-        controller.create_random_banner("A",5)
-        controller.create_random_banner("B",5)
+        controller.create_random_banner("A",5,key=(lambda x: 1 / math.log(x)))
+        controller.create_random_banner("B",5,key=(lambda x: 1 / math.log(x)))
+        r = random.randrange(1000)
+        if r == 0 :
+            tops = controller.top_items(11)
+            controller.add_new_banner("Legends",[i.id for i in tops],tops[0].rarity + tops[1].rarity / 2,(lambda x: 1))
         counter = 10
         while counter > 0 :
             counter -= 1
@@ -65,7 +71,7 @@ async def passive_income() :
         top_item_list = controller.top_items(len(controller.items) + 1)
         top_player = top_player_list[0]
         top_item = top_item_list[0]
-        average_rarity = sum([i.rarity * (top_item_list.index(i) / len(top_item_list)) for i in controller.items]) / len(controller.items)
+        average_rarity = sum([i.rarity * (top_item_list.index(i) / len(top_item_list)) for i in controller.items]) / len(controller.items) * 2
         #delta_amount = (top_player.get_net_worth() - 10 * top_item.rarity) / len(top_player.items)
         [controller.change_money_player(i.id,average_rarity) for i in controller.players]
         await asyncio.sleep(5)
@@ -146,7 +152,15 @@ async def on_message(message):
                         await message.channel.send(msg)
                         return
                     else :
-                        msg += "You pulled:\n" + str(item) + "\n"
+                        most_valuable = controller.top_items(11)
+                        try :
+                            index = most_valuable.index(item)
+                            if index == 0 :
+                                msg += "You pulled:\n__**" + str(item) + "**__\n"
+                            else :
+                                msg += "You pulled:\n**" + str(item) + "**\n"
+                        except :
+                            msg += "You pulled:\n" + str(item) + "\n"
                 except gachapy.controller.PullError as e:
                     msg += str(e) + "\n"
                     msg = msg.format(message)
@@ -187,9 +201,20 @@ async def on_message(message):
     if message.content.startswith("!banners") or message.content.startswith("!b"):
         msg = "{0.author.mention} "
         for banner in controller.banners :
-            msg += str(banner) + "\n"
+            msg += banner.name + "\n"
+            msg += "Price: " + str(banner.price) + "\n"
+            msg += "Items:\n"
+            most_valuable = controller.top_items(11)
+            for item in banner.item_list :
+                try :
+                    index = most_valuable.index(item)
+                    if index == 0 :
+                        msg += "__**" + str(item) + "**__" + "\n"
+                    else :
+                        msg += "**" + str(item) + "**" + "\n"
+                except :
+                    msg +=str(item) + "\n"
             msg += "\n"
-        
         msg = msg.format(message)
         await message.channel.send(msg)
     
