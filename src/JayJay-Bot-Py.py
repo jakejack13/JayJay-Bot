@@ -18,12 +18,20 @@ async def on_message(message):  # bulk of command handling
     if message.author == client.user:  # prevents bot from replying to itself
         return
 
+    if message.content.startswith(secret.get_password()):
+        msg = "<@139126745159827457> Accepted"
+
     if message.content.startswith("!hello"):  # hello (used to test bot)
         msg = "Hello {0.author.mention}".format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!random"):  # random number 1-10
-        randMsg = str(random.randint(1, 10))
+        if message.author.id == 251487803072970753:
+            randMsg = str(0)
+        elif message.author.id == 794292719689400331:
+            randMsg = str(11)
+        else:
+            randMsg = str(random.randint(1, 10))
         msg = ("Your random number from 1-10 is " + randMsg).format(message)
         await message.channel.send(msg)
 
@@ -91,6 +99,8 @@ Secret command to break the bot""".format(
         #    else :
         #        while True :
         #            await message.guild.get_member(user).send(msg)
+
+        # password: hewhoawaitshisname
 
         # if message.content.startswith('!nerd') : #comparing nerds, discontinued
         #    split = message.content.split(' ')
