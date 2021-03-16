@@ -2,6 +2,8 @@ import discord
 import random
 import os
 
+import secret
+
 script_dir = os.path.dirname(__file__)
 token_path = "../lib/token.txt"
 f = open(os.path.join(script_dir, token_path), "r")
@@ -20,6 +22,7 @@ async def on_message(message):  # bulk of command handling
 
     if message.content.startswith(secret.get_password()):
         msg = "<@139126745159827457> Accepted"
+        await message.channel.send(msg)
 
     if message.content.startswith("!hello"):  # hello (used to test bot)
         msg = "Hello {0.author.mention}".format(message)
