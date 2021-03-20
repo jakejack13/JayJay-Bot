@@ -3,6 +3,7 @@ import discord
 import os
 import random
 import math
+import threading
 import gachapy.objects, gachapy.controller, gachapy.loader
 
 
@@ -21,6 +22,8 @@ controller = gachapy.loader.load_controller(
     os.path.join(script_dir, player_file),
 )
 
+controller.lock = threading.Lock()
+
 
 async def save():
     while True:
@@ -30,6 +33,7 @@ async def save():
 
 async def create_gachas():
     while True:
+        controller.lock.acquire()
         controller.remove_all_banners()
         controller.create_random_banner("A", 5, key=(lambda x: 1 / math.log(x)))
         controller.create_random_banner("B", 5, key=(lambda x: 1 / math.log(x)))
@@ -42,6 +46,7 @@ async def create_gachas():
                 tops[0].rarity + tops[1].rarity / 2,
                 (lambda x: 1),
             )
+        controller.lock.release()
         counter = 10
         while counter > 0:
             counter -= 1
@@ -60,6 +65,7 @@ async def check_user(user):
         nick = user.name
     else:
         nick = user.nick
+    controller.lock.acquire()
     name = nick + " (" + user.name + "#" + user.discriminator + ")"
     id = str(user.id)
     user_item = controller.find_item_by_id(id)
@@ -76,10 +82,12 @@ async def check_user(user):
         # top_player = controller.top_players(2)[0]
         # top_item = controller.top_items(2)[0]
         # controller.change_money_player(str(user.id),top_player.get_net_worth() / top_item.rarity)
+    controller.lock.release()
 
 
 async def passive_income():
     while True:
+        controller.lock.acquire()
         top_player_list = controller.top_players(len(controller.players) + 1)
         top_item_list = controller.top_items(len(controller.items) + 1)
         top_player = top_player_list[0]
@@ -99,6 +107,7 @@ async def passive_income():
             controller.find_player_by_id(i.id).change_money(average_rarity)
             for i in controller.players
         ]
+        controller.lock.release()
         await asyncio.sleep(5)
 
 
@@ -112,6 +121,7 @@ async def load_users(user):
             nick = user.nick
     except:
         nick = user.name
+    controller.lock.acquire()
     name = nick + " (" + user.name + "#" + user.discriminator + ")"
     id = str(user.id)
     user_item = controller.find_item_by_id(id)
@@ -124,6 +134,7 @@ async def load_users(user):
         controller.add_new_player(name, id, 100)
     else:
         user_player.name = name
+    controller.lock.release()
 
 
 @client.event
@@ -170,6 +181,7 @@ async def on_message(message):
         or message.content.startswith("!p")
         or message.content.startswith("!roll")
     ):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 2:
@@ -205,10 +217,12 @@ async def on_message(message):
                     msg = msg.format(message)
                     await message.channel.send(msg)
                     return
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!search"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 3:
@@ -233,11 +247,12 @@ async def on_message(message):
                 msg += str(player)
         else:
             msg += "Usage: !search <item/banner/player> <name>"
-
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!banners") or message.content.startswith("!b"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         for banner in controller.banners:
             msg += banner.name + "\n"
@@ -254,10 +269,12 @@ async def on_message(message):
                 except:
                     msg += str(item) + "\n"
             msg += "\n"
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!top") or message.content.startswith("!t"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 2:
@@ -274,18 +291,21 @@ async def on_message(message):
                 msg += gachapy.objects.player_str_net_worth(player) + "\n"
         else:
             msg += "Usage: !top <item/player>"
-
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!inventory") or message.content.startswith("!inv"):
+        controller.lock.acquire()
         player = controller.find_player_by_id(str(message.author.id))
         msg = "{0.author.mention} "
         msg += str(player)
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!have"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 2:
@@ -295,19 +315,23 @@ async def on_message(message):
             item = controller.find_item_by_id(split[1])
             count = player.items.count(item)
             msg += "You have " + str(count) + " of " + str(item)
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!rank"):
+        controller.lock.acquire()
         top_players = controller.top_players(len(controller.players))
         player = controller.find_player_by_id(str(message.author.id))
         place = top_players.index(player) + 1
         msg = "{0.author.mention} "
         msg += "Rank: " + str(place)
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!steal"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 2:
@@ -328,10 +352,12 @@ async def on_message(message):
                     msg += "You stole " + str(item) + " from " + target_player.name
                 else:
                     msg += target_player.name + " caught you! You don't get anything"
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!give"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 3:
@@ -349,10 +375,12 @@ async def on_message(message):
             else:
                 target_player.add_item(target_item)
                 msg += "You gave " + str(target_item) + " to " + target_player.name
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!donate"):
+        controller.lock.acquire()
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 3:
@@ -366,6 +394,7 @@ async def on_message(message):
             else:
                 target_player.change_money(money)
                 msg += "You donated " + str(money) + " money to " + target_player.name
+        controller.lock.release()
         msg = msg.format(message)
         await message.channel.send(msg)
 
