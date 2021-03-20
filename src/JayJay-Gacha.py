@@ -141,9 +141,12 @@ async def on_message(message):
         !inventory / !inv
         !banners / !b
         !top / !t
-        !search / !s
+        !search
         !rank
         !have
+        !steal
+        !give
+        !donate
         """.format(
             message
         )
@@ -205,7 +208,7 @@ async def on_message(message):
         msg = msg.format(message)
         await message.channel.send(msg)
 
-    if message.content.startswith("!search") or message.content.startswith("!s"):
+    if message.content.startswith("!search"):
         msg = "{0.author.mention} "
         split = message.content.split(" ")
         if len(split) < 3:
@@ -301,6 +304,68 @@ async def on_message(message):
         place = top_players.index(player) + 1
         msg = "{0.author.mention} "
         msg += "Rank: " + str(place)
+        msg = msg.format(message)
+        await message.channel.send(msg)
+
+    if message.content.startswith("!steal"):
+        msg = "{0.author.mention} "
+        split = message.content.split(" ")
+        if len(split) < 2:
+            msg += "Usage: !steal <player id>"
+        else:
+            current_player = controller.find_player_by_id(str(message.author.id))
+            target_player = controller.find_player_by_id(split[1])
+            if target_player == None:
+                msg += "Player not found"
+            elif not current_player.change_money(500):
+                msg += "You do not have enough money to steal from this person"
+            else:
+                rand = random.randint(0, 4)
+                if rand == 0:
+                    item = random.choice(target_player.items)
+                    target_player.remove_item(item)
+                    current_player.add_item(item)
+                    msg += "You stole " + str(item) + " from " + target_player.name
+                else:
+                    msg += target_player.name + " caught you! You don't get anything"
+        msg = msg.format(message)
+        await message.channel.send(msg)
+
+    if message.content.startswith("!give"):
+        msg = "{0.author.mention} "
+        split = message.content.split(" ")
+        if len(split) < 3:
+            msg += "Usage: !give <item id> <target player id>"
+        else:
+            current_player = controller.find_player_by_id(str(message.author.id))
+            target_item = controller.find_item_by_id(split[1])
+            target_player = controller.find_player_by_id(split[2])
+            if target_item == None:
+                msg += "Item not found"
+            elif target_player == None:
+                msg += "player not found"
+            elif not current_player.remove_item(target_item):
+                msg += "You do not have " + str(target_item)
+            else:
+                target_player.add_item(target_item)
+                msg += "You gave " + str(target_item) + " to " + target_player.name
+        msg = msg.format(message)
+        await message.channel.send(msg)
+
+    if message.content.startswith("!donate"):
+        msg = "{0.author.mention} "
+        split = message.content.split(" ")
+        if len(split) < 3:
+            msg += "Usage: !give <target player id> <amount of money>"
+        else:
+            current_player = controller.find_player_by_id(str(message.author.id))
+            target_player = controller.find_player_by_id(split[1])
+            money = int(split[2])
+            if not current_player.change_money(-1 * money):
+                msg += "You do not have enough money to donate to this person"
+            else:
+                target_player.change_money(money)
+                msg += "You donated " + str(money) + " money to " + target_player.name
         msg = msg.format(message)
         await message.channel.send(msg)
 
