@@ -190,9 +190,13 @@ async def on_message(message):
             if len(split) < 3:
                 count = 1
             else:
-                count = int(split[2])
-                if count > 20:
-                    msg += "Too many rolls, max is 20\n"
+                try:
+                    count = int(split[2])
+                    if count > 20:
+                        msg += "Too many rolls, max is 20\n"
+                        count = 20
+                except:
+                    msg += "Not a number, default to 1\n"
                     count = 20
             for i in range(count):
                 try:
@@ -388,7 +392,11 @@ async def on_message(message):
         else:
             current_player = controller.find_player_by_id(str(message.author.id))
             target_player = controller.find_player_by_id(split[1])
-            money = int(split[2])
+            try:
+                money = int(split[2])
+            except:
+                msg += "Not an amount of money, defaulting to 1"
+                money = 1
             if not current_player.change_money(-1 * money):
                 msg += "You do not have enough money to donate to this person"
             else:
