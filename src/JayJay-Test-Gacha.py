@@ -13,9 +13,9 @@ f = open(os.path.join(script_dir, token_path), "r")
 TOKEN = f.read()
 client = discord.Client()
 
-item_file = "../lib/old_gacha/items.json"
-banner_file = "../lib/old_gacha/banners.json"
-player_file = "../lib/old_gacha/players.json"
+item_file = "../lib/new_gacha/items.json"
+banner_file = "../lib/new_gacha/banners.json"
+player_file = "../lib/new_gacha/players.json"
 # controller = gachapy.controller.Controller()
 controller = gachapy.loader.load_controller(
     os.path.join(script_dir, item_file),
@@ -23,6 +23,8 @@ controller = gachapy.loader.load_controller(
     os.path.join(script_dir, player_file),
 )
 
+# NEXT_ID = 0
+NEXT_ID = max([int(i.id) for i in controller.items]) + 1
 
 controller.lock = threading.Lock()
 
@@ -71,11 +73,11 @@ async def check_user(user):
     name = nick + " (" + user.name + "#" + user.discriminator + ")"
     id = str(user.id)
     user_item = controller.find_item_by_id(id)
-    if user_item == None:
-        controller.add_new_item(name, id, 1)
-    else:
-        user_item.name = name
-        user_item.change_rarity(user_item.rarity + 1)
+    # if user_item == None:
+    #     controller.add_new_item(name, id, 1)
+    # else:
+    #     user_item.name = name
+    #     user_item.change_rarity(user_item.rarity + 1)
     user_player = controller.find_player_by_id(id)
     if user_player == None:
         controller.add_new_player(name, id, 0)
@@ -147,11 +149,14 @@ async def load_users(user):
 
 @client.event
 async def on_message(message):
+    global NEXT_ID
+
     if message.author == client.user:
         return
 
     # await load_users(message.author)
     await check_user(message.author)
+    await active_income(message.author)
 
     if message.content.startswith("!help"):
         msg = """{0.author.mention} COMMANDS:
@@ -166,6 +171,8 @@ async def on_message(message):
         !steal
         !give
         !donate
+        !create
+        !invest
         """.format(
             message
         )
@@ -408,6 +415,52 @@ async def on_message(message):
         msg = msg.format(message)
         await message.channel.send(msg)
 
+    if message.content.startswith("!create"):
+        controller.lock.acquire()
+        msg = "{0.author.mention} "
+        split = message.content.split(" ")
+        if len(split) < 3:
+            msg += "Usage: !create <rarity> <name>"
+        else:
+            current_player = controller.find_player_by_id(str(message.author.id))
+            try:
+                rarity = int(split[1])
+                if not current_player.change_money(-1 * rarity * 10):
+                    msg += "You do not have enough money to create this item"
+                else:
+                    item = controller.add_new_item(
+                        " ".join(split[2:]), str(NEXT_ID), rarity
+                    )
+                    NEXT_ID += 1
+                    msg += "You created this item: " + str(item)
+            except:
+                msg += "Not an amount of money, please try again"
+        controller.lock.release()
+        msg = msg.format(message)
+        await message.channel.send(msg)
+
+    if message.content.startswith("!invest"):
+        controller.lock.acquire()
+        msg = "{0.author.mention} "
+        split = message.content.split(" ")
+        if len(split) < 3:
+            msg += "Usage: !invest <rarity to add> <item id>"
+        else:
+            current_player = controller.find_player_by_id(str(message.author.id))
+            try:
+                rarity = int(split[1])
+                if not current_player.change_money(-1 * rarity * 10):
+                    msg += "You do not have enough money to invest in this item"
+                else:
+                    item = controller.find_item_by_id(split[2])
+                    item.change_rarity(item.rarity + math.floor(rarity))
+                    msg += "The item is now: " + str(item)
+            except:
+                msg += "Not an amount of money, please try again"
+        controller.lock.release()
+        msg = msg.format(message)
+        await message.channel.send(msg)
+
 
 @client.event
 async def on_ready():
@@ -419,5 +472,5 @@ async def on_ready():
 
 client.loop.create_task(save())
 client.loop.create_task(create_gachas())
-client.loop.create_task(passive_income())
+# client.loop.create_task(passive_income())
 client.run(TOKEN)
