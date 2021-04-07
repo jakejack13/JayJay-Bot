@@ -29,12 +29,7 @@ async def on_message(message):  # bulk of command handling
         await message.channel.send(msg)
 
     if message.content.startswith("!random"):  # random number 1-10
-        if message.author.id == 251487803072970753:
-            randMsg = str(0)
-        elif message.author.id == 794292719689400331:
-            randMsg = str(11)
-        else:
-            randMsg = str(random.randint(1, 10))
+        randMsg = str(random.randint(1, 10))
         msg = ("Your random number from 1-10 is " + randMsg).format(message)
         await message.channel.send(msg)
 
@@ -56,11 +51,11 @@ async def on_message(message):  # bulk of command handling
         await message.guild.get_member(client.user.id).edit(nick=name)
         await message.add_reaction("\U0001F44D")
 
-    if message.content.startswith("!kill"):  # shut down client
-        msg = "\U0001F44D".format(message)
-        await message.channel.send(msg)
-        await client.logout()
-        await client.close()
+    # if message.content.startswith("!kill"):  # shut down client
+    #     msg = "\U0001F44D".format(message)
+    #     await message.channel.send(msg)
+    #     await client.logout()
+    #     await client.close()
 
     if message.content.startswith("!sorry"):  # sorry counter command
         sorry_num += 1
@@ -68,9 +63,7 @@ async def on_message(message):  # bulk of command handling
         await message.channel.send(msg)
 
     if message.content.startswith("!warren"):
-        msg = "Happy birthday to the Apprentice, the Thinker, the Creator, and my friend".format(
-            message
-        )
+        msg = "The Apprentice, the Thinker, the Creator, and my friend".format(message)
         await message.channel.send(msg)
 
     if message.content.startswith("!help"):  # list of commands

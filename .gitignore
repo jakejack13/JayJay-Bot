@@ -20,4 +20,7 @@ data/
 
 lib/
 *.json
+
+
 secret.py
+secret/

