@@ -2,7 +2,7 @@ import discord
 import random
 import os
 
-import secret
+import secret.secret
 
 script_dir = os.path.dirname(__file__)
 token_path = "../lib/token.txt"
