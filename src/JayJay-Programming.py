@@ -260,8 +260,6 @@ async def on_ready():
     print("------")
     msg = "!help"
     await client.change_presence(activity=discord.Game(name=msg))  # set status to !help
-    corner = client.get_channel(756953581671940147)  # The Corner
-    await corner.connect()
 
 
 client.run(TOKEN)

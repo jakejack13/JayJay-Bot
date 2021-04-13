@@ -7,7 +7,24 @@ f = open(os.path.join(script_dir, token_path), "r")
 TOKEN = f.read()
 client = discord.Client()
 
-help_str = "Commands: help, message, quit"
+help_str = "Commands: help, message, dm, quit"
+
+
+async def dm_loop():
+    print("Please input the user id")
+    try:
+        user_id = int(input("> "))
+        user = await client.fetch_user(user_id)
+        user_channel = await user.create_dm()
+        print("Connected to user " + str(user_id))
+        while True:
+            message = input("> ")
+            if message == "quit":
+                break
+            else:
+                await user_channel.send(message)
+    except:
+        print("Incorrect user id, please try again")
 
 
 async def message_loop():
@@ -34,6 +51,8 @@ async def main_loop():
             print(help_str)
         elif selection == "message":
             await message_loop()
+        elif selection == "dm":
+            await dm_loop()
         elif selection == "quit":
             break
         else:
