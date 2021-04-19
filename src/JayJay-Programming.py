@@ -31,7 +31,7 @@ def search(list, elem):
 
 
 @client.event
-async def on_message(message):  # bulk of command handling
+async def on_message(message: discord.Message):  # bulk of command handling
 
     if message.author == client.user:  # prevents bot from replying to itself
         return
