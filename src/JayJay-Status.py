@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import os
 
@@ -8,6 +9,7 @@ TOKEN = f.read()
 client = discord.Client()
 message_path = "../lib/message.txt"
 m = open(os.path.join(script_dir, message_path), "r")
+msg = m.read()
 
 
 @client.event
@@ -16,12 +18,9 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print("------")
-    msg = m.read()
     await client.change_presence(
         activity=discord.Activity(name=msg, type=discord.ActivityType.playing)
     )
-    corner = client.get_channel(756953581671940147)
-    # await corner.connect()
 
 
 client.run(TOKEN)

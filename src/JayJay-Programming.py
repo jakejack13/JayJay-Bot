@@ -23,11 +23,11 @@ def alarm_handler(signum, frame):
     raise TimeOutException()
 
 
-def search(list, elem):
-    for i in range(len(list)):
-        if list[i] == elem:
-            return i
-    return -1
+def search(lst, elem):
+    try:
+        return lst.index(elem)
+    except:
+        return -1
 
 
 @client.event
@@ -48,7 +48,7 @@ async def on_message(message: discord.Message):  # bulk of command handling
         )
         await message.channel.send(msg)
 
-    if message.content.startswith("!codehelp"):
+    elif message.content.startswith("!codehelp"):
         msg = """For all languages:
 - NO GRAPHICS OF ANY KIND! I am running this via the command line (WSL), which does not have graphics. For some reason, it breaks the bot instead of erroring out. Go figure
 - Put a space after the command (!python, !java, etc.), even if you have a new line. You will break my parsing otherwise
@@ -71,7 +71,7 @@ For Brainfuck:
         """
         await message.channel.send(msg)
 
-    if message.content.startswith("!hello"):  # hello (used to test bot)
+    elif message.content.startswith("!hello"):  # hello (used to test bot)
         msg = "Hello {0.author.mention}".format(message)
         await message.channel.send(msg)
 
@@ -80,54 +80,62 @@ For Brainfuck:
             if (
                 "import sys" in message.content
             ):  # sys not supported for safety of system
-                msg = "Error: sys support is not offered".format(message)
-                await message.channel.send(msg)
-                return
+                output = "Error: sys support is not offered".format(message)
+
             elif (
                 "import os" in message.content
             ):  # os not supported for safety of system
-                msg = "Error: os support is not offered".format(message)
-                await message.channel.send(msg)
-                return
+                output = "Error: os support is not offered".format(message)
+            elif "import importlib" in message.content:
+                output = "Error: importlib support is not offered".format(message)
+            elif "import shutil" in message.content:
+                output = "Error: shutil support is not offered".format(message)
+            else:
+                old_stdout = sys.stdout  # saving stdout pipe
+                old_stderr = sys.stderr  # saving sterr pipe
+                sys.stdout = (
+                    buffer_out
+                ) = io.StringIO()  # replace stdout with new string io buffer
+                sys.stderr = (
+                    buffer_err
+                ) = io.StringIO()  # replace stderr with new string io buffer
 
-            old_stdout = sys.stdout  # saving stdout pipe
-            old_stderr = sys.stderr  # saving sterr pipe
-            sys.stdout = (
-                buffer_out
-            ) = io.StringIO()  # replace stdout with new string io buffer
-            sys.stderr = (
-                buffer_err
-            ) = io.StringIO()  # replace stderr with new string io buffer
+                split = message.content.split(" ")
+                if len(split) < 2:  # code not supplied, print helper message
+                    msg = "Usage: !python <code to run>".format(message)
+                    await message.channel.send(msg)
+                    return
 
-            split = message.content.split(" ")
-            if len(split) < 2:  # code not supplied, print helper message
-                msg = "Usage: !python <code to run>".format(message)
-                await message.channel.send(msg)
-                return
+                msg = " ".join(split[1:])
+                clean_msg = msg.replace(
+                    "`", ""
+                )  # clean python code from message for execution
+                signal.signal(signal.SIGALRM, alarm_handler)
+                signal.alarm(
+                    3
+                )  # create three second kill switch (prevent infinite loops)
+                try:
+                    exec(
+                        compile(clean_msg, "text.txt", "exec"), {}, {}
+                    )  # attempt to run
+                except TimeOutException:  # detect timeout
+                    msg = "Error: Bot timed out after 3 seconds".format(message)
+                    await message.channel.send(msg)
+                    return
+                except:
+                    traceback.print_exc()  # print error to console if found
+                signal.alarm(0)  # reset alarm
 
-            msg = " ".join(split[1:])
-            clean_msg = msg.replace(
-                "`", ""
-            )  # clean python code from message for execution
-            signal.signal(signal.SIGALRM, alarm_handler)
-            signal.alarm(3)  # create three second kill switch (prevent infinite loops)
-            try:
-                exec(compile(clean_msg, "text.txt", "exec"))  # attempt to run
-            except TimeOutException:  # detect timeout
-                msg = "Error: Bot timed out after 3 seconds".format(message)
-                await message.channel.send(msg)
-                return
-            except:
-                traceback.print_exc()  # print error to console if found
-            signal.alarm(0)  # reset alarm
+                out_value = buffer_out.getvalue()  # grab execution values from stdout
+                err_value = buffer_err.getvalue()  # grab execution values from stderr
 
-            out_value = buffer_out.getvalue()  # grab execution values from stdout
-            err_value = buffer_err.getvalue()  # grab execution values from stderr
+                sys.stdout = old_stdout  # hook up stdout with old pipe
+                sys.stderr = old_stderr  # hook up stderr with old pipe
 
-            sys.stdout = old_stdout  # hook up stdout with old pipe
-            sys.stderr = old_stderr  # hook up stderr with old pipe
-
-        await message.channel.send(err_value + out_value)
+                output = err_value + out_value
+        if output == "":
+            output = "Done (no output)"
+        await message.channel.send(output)
 
     elif message.content.startswith("!java"):  # java compiler
         async with message.channel.typing():
@@ -191,6 +199,9 @@ For Brainfuck:
                     return
                 signal.alarm(0)  # reset alarm
 
+        if output == "":
+            output = "Done (no output)"
+
         await message.channel.send(output)
 
     elif message.content.startswith("!c"):
@@ -229,6 +240,9 @@ For Brainfuck:
                     return
                 signal.alarm(0)
 
+        if output == "":
+            output = "Done (no output)"
+
         await message.channel.send(output)
 
     elif message.content.startswith("!brainfuck"):
@@ -248,6 +262,9 @@ For Brainfuck:
                 'echo "' + clean_msg + '" | brainfuck'
             )  # pipe code directly into bf interpreter
             output = stream.read()  # read output
+
+        if output == "":
+            output = "Done (no output)"
 
         await message.channel.send(output)
 
