@@ -1,8 +1,9 @@
-from time import sleep
 import discord
 import os
 from discord.ext import commands
 import asyncio
+
+from typing import List
 
 script_dir = os.path.dirname(__file__)
 token_path = "../lib/token.txt"
@@ -11,21 +12,44 @@ TOKEN = f.read()
 client = commands.Bot(command_prefix="!")
 
 
-async def color_change():
-    await client.wait_until_ready()
-    pisscord = await client.fetch_guild(813866062495481872)
-    role: discord.Role = pisscord.get_role(844706451905708083)
+def flatten(lst: List[str]) -> str:
+    result = ""
+    for s in lst:
+        result += s + " "
+    return result
+
+
+class StringIter:
+    def __init__(self, string: str):
+        spl = string.split(" ")
+        self.lst = [flatten(spl[: i + 1]) for i in range(len(spl))]
+
+    def __iter__(self):
+        return self.lst.__iter__()
+
+
+async def iter_status(msg: str):
+    for s in StringIter(msg):
+        print(s)
+        await client.change_presence(
+            activity=discord.Activity(name=s, type=discord.ActivityType.playing)
+        )
+        await asyncio.sleep(2.5)
+
+
+async def main_loop():
     while True:
-        await role.edit(colour=discord.Colour.random())
-        await asyncio.sleep(1.5)
+        msg = input("> ")
+        await iter_status(msg)
 
 
 @client.event
 async def on_ready():
-    channel = await client.fetch_channel(840737842871271464)
-    while True:
-        await channel.send("<@547910268081143830>")
-        await asyncio.sleep(0.6)
+    print("Logged in as")
+    print(client.user.name)
+    print(client.user.id)
+    print("------")
+    await main_loop()
 
 
 client.run(TOKEN)
