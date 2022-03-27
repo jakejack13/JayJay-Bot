@@ -5,10 +5,10 @@ import asyncio
 
 from typing import List
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = commands.Bot(command_prefix="!")
 
 

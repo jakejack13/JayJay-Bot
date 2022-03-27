@@ -1,12 +1,14 @@
+"""Counts down to a specified time in its status"""
+
 import discord
 from datetime import datetime
 from math import floor
 import os
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
 
@@ -28,4 +30,8 @@ async def on_ready():
     print("------")
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()

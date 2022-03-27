@@ -1,13 +1,13 @@
 import discord
 import os
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
-help_str = "Commands: help, message, dm, quit"
+HELP_STR = "Commands: help, message, dm, quit"
 
 
 async def dm_loop():
@@ -45,10 +45,10 @@ async def message_loop():
 
 async def main_loop():
     while True:
-        print(help_str)
+        print(HELP_STR)
         selection = input("> ")
         if selection == "help":
-            print(help_str)
+            print(HELP_STR)
         elif selection == "message":
             await message_loop()
         elif selection == "dm":
@@ -66,4 +66,8 @@ async def on_ready():
     await main_loop()
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()

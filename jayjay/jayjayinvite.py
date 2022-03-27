@@ -7,10 +7,11 @@ from threading import Lock
 
 from typing import *
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
+client = discord.Client()
 client = commands.Bot(command_prefix="!")
 
 SERVER_ID = 716231232635011074
@@ -72,4 +73,9 @@ async def on_ready():
     print("------")
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()
+    

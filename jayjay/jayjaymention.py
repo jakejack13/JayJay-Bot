@@ -1,11 +1,16 @@
+"""A message logger that logs messages every time the bot is mentioned in a server"""
+
 import discord
 import os
 
 script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
+
 log_path = "../lib/log.txt"
 log = open(os.path.join(script_dir, log_path), "r")
 
@@ -37,4 +42,8 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name=msg))
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()

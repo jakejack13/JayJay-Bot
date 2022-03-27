@@ -1,3 +1,6 @@
+"""A compiler/interpreter for Python, Java, C, and Brainfuck that takes in source code through commands in Discord and outpuits the result. 
+Complete with error messages and timeout function to prevent the bot from freezing"""
+
 import discord
 
 import sys
@@ -7,10 +10,10 @@ import traceback
 import subprocess
 import signal
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
 
@@ -279,4 +282,8 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name=msg))  # set status to !help
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()

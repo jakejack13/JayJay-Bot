@@ -1,3 +1,6 @@
+"""A full featured gacha bot that turns members of a server into items to roll for and collect. 
+Implemented using [gachapy](https://github.com/jakejack13/gachapy)"""
+
 import asyncio
 import discord
 import os
@@ -8,9 +11,10 @@ import gachapy.objects, gachapy.controller, gachapy.loader
 
 
 script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
 item_file = "../lib/old_gacha/items.json"
@@ -417,7 +421,11 @@ async def on_ready():
     print("------")
 
 
-client.loop.create_task(save())
-client.loop.create_task(create_gachas())
-client.loop.create_task(passive_income())
-client.run(TOKEN)
+def main():
+    client.loop.create_task(save())
+    client.loop.create_task(create_gachas())
+    client.loop.create_task(passive_income())
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()

@@ -18,9 +18,7 @@ data/
 *.bf
 !java
 
-lib/
 *.json
 
-
-JayJay-Secret.py
-secret/
+# secrets
+.env

@@ -1,13 +1,13 @@
+"""The original script of JayJay. Can do simple commands like changing its status or nickname on a server"""
+
 import discord
 import random
 import os
 
-import secret.secret
+from dotenv import load_dotenv
+load_dotenv()
 
-script_dir = os.path.dirname(__file__)
-token_path = "../lib/token.txt"
-f = open(os.path.join(script_dir, token_path), "r")
-TOKEN = f.read()
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 sorry_num = 0  # used for !sorry
 
@@ -20,23 +20,17 @@ async def on_message(message):  # bulk of command handling
     if message.author == client.user:  # prevents bot from replying to itself
         return
 
-    if message.content.startswith(secret.get_password()):
-        msg = "<@139126745159827457> Accepted"
-        await message.channel.send(msg)
-
     if message.content.startswith("!hello"):  # hello (used to test bot)
-        msg = "Hello {0.author.mention}".format(message)
+        msg = f"Hello {message.author.mention}"
         await message.channel.send(msg)
 
     if message.content.startswith("!random"):  # random number 1-10
         randMsg = str(random.randint(1, 10))
-        msg = ("Your random number from 1-10 is " + randMsg).format(message)
+        msg = f"Your random number from 1-10 is {randMsg}"
         await message.channel.send(msg)
 
     if message.content.startswith("!creator"):  # personal tag command
-        msg = "I was created by JakeJack#3335. Say hi to him if you see him around!".format(
-            message
-        )
+        msg = "I was created by JakeJack#3335. Say hi to him if you see him around!"
         await message.channel.send(msg)
 
     if message.content.startswith("!game"):  # change game presence of bot
@@ -51,19 +45,9 @@ async def on_message(message):  # bulk of command handling
         await message.guild.get_member(client.user.id).edit(nick=name)
         await message.add_reaction("\U0001F44D")
 
-    # if message.content.startswith("!kill"):  # shut down client
-    #     msg = "\U0001F44D".format(message)
-    #     await message.channel.send(msg)
-    #     await client.logout()
-    #     await client.close()
-
     if message.content.startswith("!sorry"):  # sorry counter command
         sorry_num += 1
-        msg = ("Sorry, everyone. Sorry counter: " + str(sorry_num)).format(message)
-        await message.channel.send(msg)
-
-    if message.content.startswith("!warren"):
-        msg = "The Apprentice, the Thinker, the Creator, and my friend".format(message)
+        msg = f"Sorry, everyone. Sorry counter: {sorry_num}"
         await message.channel.send(msg)
 
     if message.content.startswith("!help"):  # list of commands
@@ -74,9 +58,7 @@ async def on_message(message):  # bulk of command handling
 !game
 !name
 !sorry
-Secret command to break the bot""".format(
-            message
-        )
+"""
         await message.channel.send(msg)
 
     if "as above, so below" in message.content.lower():  # as above, so below
@@ -109,6 +91,12 @@ Secret command to break the bot""".format(
         #        msg = "" + other_user + " is nerdier than " + first_user
         #    await message.channel.send(msg)
 
+        # if message.content.startswith("!kill"):  # shut down client
+    #     msg = "\U0001F44D".format(message)
+    #     await message.channel.send(msg)
+    #     await client.logout()
+    #     await client.close()
+
 
 @client.event
 async def on_ready():
@@ -116,10 +104,10 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print("------")
-    msg = "!warren"
-    await client.change_presence(activity=discord.Game(name=msg))
-    corner = client.get_channel(756953581671940147)
-    await corner.connect()
 
 
-client.run(TOKEN)
+def main():
+    client.run(TOKEN)
+
+if __name__ == '__main__':
+    main()
