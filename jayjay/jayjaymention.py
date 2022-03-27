@@ -11,7 +11,7 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
-log_path = "../lib/log.txt"
+log_path = "../data/log.txt"
 log = open(os.path.join(script_dir, log_path), "r")
 
 

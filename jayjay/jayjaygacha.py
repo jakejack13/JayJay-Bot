@@ -17,9 +17,9 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
-item_file = "../lib/old_gacha/items.json"
-banner_file = "../lib/old_gacha/banners.json"
-player_file = "../lib/old_gacha/players.json"
+item_file = "../data/gacha/items.json"
+banner_file = "../data/gacha/banners.json"
+player_file = "../data/gacha/players.json"
 # controller = gachapy.controller.Controller()
 controller = gachapy.loader.load_controller(
     os.path.join(script_dir, item_file),

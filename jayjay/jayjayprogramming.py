@@ -84,7 +84,6 @@ For Brainfuck:
                 "import sys" in message.content
             ):  # sys not supported for safety of system
                 output = "Error: sys support is not offered".format(message)
-
             elif (
                 "import os" in message.content
             ):  # os not supported for safety of system
@@ -118,9 +117,7 @@ For Brainfuck:
                     3
                 )  # create three second kill switch (prevent infinite loops)
                 try:
-                    exec(
-                        compile(clean_msg, "text.txt", "exec"), {}, {}
-                    )  # attempt to run
+                    exec(compile(clean_msg, "text.txt", "exec"), {}, {})  # attempt to run
                 except TimeOutException:  # detect timeout
                     msg = "Error: Bot timed out after 3 seconds".format(message)
                     await message.channel.send(msg)

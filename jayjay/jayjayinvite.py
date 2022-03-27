@@ -2,8 +2,6 @@ import discord
 import os
 from discord.channel import TextChannel, VoiceChannel
 from discord.ext import commands
-import asyncio
-from threading import Lock
 
 from typing import *
 

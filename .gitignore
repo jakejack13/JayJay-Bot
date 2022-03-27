@@ -22,3 +22,4 @@ data/
 
 # secrets
 .env
+data/

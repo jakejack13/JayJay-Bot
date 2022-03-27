@@ -6,4 +6,4 @@ RUN python -m pip install --upgrade pip
 
 RUN python -m pip install discord discord.py
 
-CMD ["python","src/JayJay-Programming.py"]
+CMD ["python","main.py"]
